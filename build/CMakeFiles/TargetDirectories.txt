@@ -1,1 +1,0 @@
-/home/timer/work_git/sgm/build/CMakeFiles/sgm.dir
