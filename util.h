@@ -178,6 +178,29 @@ __device__ __forceinline__ uint32_t uchars_to_uint32(int u1, int u2, int u3, int
 	//return u1 | (u2<<8) | (u3<<16) | (u4<<24);
 	//return __byte_perm(u1, u2, 0x7740) + __byte_perm(u3, u4, 0x4077);
 	return u1 | (u2<<8) | __byte_perm(u3, u4, 0x4077);
+	/*
+		__byte_perm(x,y,s):
+		result[n] := input[selector[n]],  n indicates the n^{th} byte.
+
+		The input bytes are indexed as follows:
+		input[0] = x<7:0> input[1] = x<15:8> input[2] = x<23:16> input[3] = x<31:24>
+		input[4] = y<7:0> input[5] = y<15:8> input[6] = y<23:16> input[7] = y<31:24>
+		The selector indices are as follows (the upper 16-bits of the selector are not used):
+		selector[0] = s<2:0> selector[1] = s<6:4> selector[2] = s<10:8> selector[3] = s<14:12>
+
+		In here:
+		0x4077 = 0100 0000 0111 0111
+		selector[0] = 7, selector[1] = 7
+		selector[2] = 0, selector[3] = 4
+		Thus:
+		result[0] = input[7] = y<31:24>
+		result[1] = input[7] = y<31:24>
+		result[2] = input[0] = x<7:0>
+		result[3] = input[4] = y<7:0>
+
+		result: u4<7:0> u3<7:0> u4<31:24> u4<31:24>, since u4 is 8-bit, u4<31:24> = 0,
+		return: u1 | (u2<<8) | (u3<<16) | (u4<<24)
+	*/
 }
 
 __device__ __forceinline__ uint32_t uchar_to_uint32(int u1) {

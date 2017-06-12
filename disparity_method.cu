@@ -42,7 +42,8 @@ static uint8_t p1, p2;
 static bool first_alloc;
 static uint32_t cols, rows, size, size_cube_l;
 
-void init_disparity_method(const uint8_t _p1, const uint8_t _p2) {
+void init_disparity_method(const uint8_t _p1, const uint8_t _p2)
+{
 	// We are not using shared memory, use L1
 	//CUDA_CHECK_RETURN(cudaDeviceSetCacheConfig(cudaFuncCachePreferL1));
 	//CUDA_CHECK_RETURN(cudaDeviceSetCacheConfig(cudaFuncCachePreferShared));
@@ -58,10 +59,13 @@ void init_disparity_method(const uint8_t _p1, const uint8_t _p2) {
     cols = 0;
 }
 
-cv::Mat compute_disparity_method(cv::Mat left, cv::Mat right, float *elapsed_time_ms, const char* directory, const char* fname) {
-	if(cols != left.cols || rows != left.rows) {
+cv::Mat compute_disparity_method(cv::Mat left, cv::Mat right, float *elapsed_time_ms, const char* directory, const char* fname)
+{
+	if (cols != left.cols || rows != left.rows)
+	{
 		debug_log("WARNING: cols or rows are different");
-		if(!first_alloc) {
+		if (!first_alloc)
+		{
 			debug_log("Freeing memory");
 			free_memory();
 		}
@@ -70,7 +74,7 @@ cv::Mat compute_disparity_method(cv::Mat left, cv::Mat right, float *elapsed_tim
 		rows = left.rows;
 		size = rows*cols;
 		size_cube_l = size*MAX_DISPARITY;
-		CUDA_CHECK_RETURN(cudaMalloc((void **)&d_transform0, sizeof(cost_t)*size));
+		CUDA_CHECK_RETURN(cudaMalloc((void **)&d_transform0, sizeof(cost_t)*size));  // cost_t = uint32_t
 
 		CUDA_CHECK_RETURN(cudaMalloc((void **)&d_transform1, sizeof(cost_t)*size));
 
@@ -120,13 +124,13 @@ cv::Mat compute_disparity_method(cv::Mat left, cv::Mat right, float *elapsed_tim
 	// Hamming distance
 	CUDA_CHECK_RETURN(cudaStreamSynchronize(stream1));
 	debug_log("Calling Hamming Distance");
-	HammingDistanceCostKernel<<<rows, MAX_DISPARITY, 0, stream1>>>(d_transform0, d_transform1, d_cost, rows, cols);
+	HammingDistanceCostKernel<<<rows, MAX_DISPARITY, 0, stream1>>>(d_transform0, d_transform1, d_cost, rows, cols);  // d_cost: uint8_t
 
 	// Cost Aggregation
 	const int PIXELS_PER_BLOCK = COSTAGG_BLOCKSIZE/WARP_SIZE;
 	const int PIXELS_PER_BLOCK_HORIZ = COSTAGG_BLOCKSIZE_HORIZ/WARP_SIZE;
 
-	debug_log("Calling Left to Right");
+	debug_log("Calling Left to Right");  // COSTAGG_BLOCKSIZE_HORIZ = 64
 	CostAggregationKernelLeftToRight<<<(rows+PIXELS_PER_BLOCK_HORIZ-1)/PIXELS_PER_BLOCK_HORIZ, COSTAGG_BLOCKSIZE_HORIZ, 0, stream2>>>(d_cost, d_L0, p1, p2, rows, cols, d_transform0, d_transform1, d_disparity, d_L0, d_L1, d_L2, d_L3, d_L4, d_L5, d_L6);
 	debug_log("Calling Right to Left");
 	CostAggregationKernelRightToLeft<<<(rows+PIXELS_PER_BLOCK_HORIZ-1)/PIXELS_PER_BLOCK_HORIZ, COSTAGG_BLOCKSIZE_HORIZ, 0, stream3>>>(d_cost, d_L1, p1, p2, rows, cols, d_transform0, d_transform1, d_disparity, d_L0, d_L1, d_L2, d_L3, d_L4, d_L5, d_L6);

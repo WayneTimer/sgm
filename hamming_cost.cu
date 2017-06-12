@@ -34,14 +34,16 @@ HammingDistanceCostKernel (  const cost_t *d_transform0, const cost_t *d_transfo
 	SharedMatch [MAX_DISPARITY+THRid] = d_transform1[y*cols+0];  // init position
 
 	int n_iter = cols/MAX_DISPARITY;
-	for (int ix=0; ix<n_iter; ix++) {
+	for (int ix=0; ix<n_iter; ix++)
+	{
 		const int x = ix*MAX_DISPARITY;
 		SharedMatch [THRid]      = SharedMatch [THRid + MAX_DISPARITY];
 		SharedMatch [THRid+MAX_DISPARITY] = d_transform1 [y*cols+x+THRid];
 		SharedBase  [THRid]      = d_transform0 [y*cols+x+THRid];
 
 		__syncthreads();
-		for (int i=0; i<MAX_DISPARITY; i++) {
+		for (int i=0; i<MAX_DISPARITY; i++)
+		{
 			const cost_t base  = SharedBase [i];
 			const cost_t match = SharedMatch[(MAX_DISPARITY-1-THRid)+1+i];
 			d_cost[(y*cols+x+i)*MAX_DISPARITY+THRid] = popcount( base ^ match );
@@ -51,15 +53,18 @@ HammingDistanceCostKernel (  const cost_t *d_transform0, const cost_t *d_transfo
 	// For images with cols not multiples of MAX_DISPARITY
 	const int x = MAX_DISPARITY*(cols/MAX_DISPARITY);
 	const int left = cols-x;
-	if(left > 0) {
+	if (left > 0)
+	{
 		SharedMatch [THRid]      = SharedMatch [THRid + MAX_DISPARITY];
-		if(THRid < left) {
+		if (THRid < left)
+		{
 			SharedMatch [THRid+MAX_DISPARITY] = d_transform1 [y*cols+x+THRid];
 			SharedBase  [THRid]      = d_transform0 [y*cols+x+THRid];
 		}
 
 		__syncthreads();
-		for (int i=0; i<left; i++) {
+		for (int i=0; i<left; i++)
+		{
 			const cost_t base  = SharedBase [i];
 			const cost_t match = SharedMatch[(MAX_DISPARITY-1-THRid)+1+i];
 			d_cost[(y*cols+x+i)*MAX_DISPARITY+THRid] = popcount( base ^ match );
