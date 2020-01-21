@@ -51,8 +51,7 @@ __device__ __forceinline__ void CostAggregationDiagonalGenericIndexesIncrement(i
 																			   const int initial_row, const int i, const int dis)
 {
 	*col += add_index;
-	if (add_index > 0 && *col > cols)
-	{
+	if (add_index > 0 && *col >= cols) {
 		*col = 0;
 	}
 	else if (*col < 0)
