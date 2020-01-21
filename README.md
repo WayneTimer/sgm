@@ -1,6 +1,6 @@
 # Semi-Global Matching on the GPU
 
-This is the implementation of [Embedded real-time stereo estimation via Semi-Global Matching on the GPU](http://www.sciencedirect.com/science/article/pii/S1877050916306561), [D. Hernandez-Juarez](http://www.cvc.uab.es/people/dhernandez/) et al, ICCS 2016.
+This is the implementation of [Embedded real-time stereo estimation via Semi-Global Matching on the GPU](http://www.sciencedirect.com/science/article/pii/S1877050916306561), [D. Hernandez-Juarez](http://danihernandez.eu) et al, ICCS 2016.
 
 Performance obtained measured in Frames Per Second (FPS):
 
@@ -17,6 +17,12 @@ Results for example image (left and right Images):
 Results for example image (Output):
 
 <img src="example/disparities/2.png" alt="Example output" width="100%">
+
+Parameters used for KITTI 2015:
+- 2 path directions: P1=7, P2=84
+- 4 path directions: P1=7, P2=86
+- 8 path directions: P1=6, P2=96
+
 
 ## How to compile and test
 
@@ -47,7 +53,7 @@ dir
 ## Related Publications
 
 [Embedded real-time stereo estimation via Semi-Global Matching on the GPU](http://www.sciencedirect.com/science/article/pii/S1877050916306561)
-[D. Hernandez-Juarez](http://www.cvc.uab.es/people/dhernandez/), A. Chacón, A. Espinosa, D. Vázquez, J. C. Moure, and A. M. López
+[D. Hernandez-Juarez](http://danihernandez.eu), A. Chacón, A. Espinosa, D. Vázquez, J. C. Moure, and A. M. López
 ICCS2016 – International Conference on Computational Science 2016
 
 ## Requirements
